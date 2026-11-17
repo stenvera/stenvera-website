@@ -3,11 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Mark Veenstra's bilingual personal website, deployable to Cloudflare Pages",
+  "description": "Mark Veenstra's bilingual personal website on Cloudflare Workers Static Assets",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "dev": "npm run build && python3 -m http.server 8080 --directory dist",
-    "test": "node tests/check.mjs"
+    "dev": "npm run build && wrangler dev",
+    "test": "node tests/check.mjs",
+    "deploy": "wrangler deploy",
+    "deploy:local": "npm run build && wrangler deploy"
   },
-  "engines": { "node": ">=20" }
+  "devDependencies": {
+    "wrangler": "4.164.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }
