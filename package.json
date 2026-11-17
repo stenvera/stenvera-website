@@ -1,0 +1,13 @@
+{
+  "name": "stenvera-personal-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mark Veenstra's bilingual personal website, deployable to Cloudflare Pages",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && python3 -m http.server 8080 --directory dist",
+    "test": "node tests/check.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

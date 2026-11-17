@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-labelledby="title">
+  <title id="title">Stenvera</title>
+  <defs>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#18d9cb"/><stop offset="1" stop-color="#008cbd"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#007ea4"/><stop offset="1" stop-color="#22e4b6"/></linearGradient>
+  </defs>
+  <path d="M22 8h43L49 24H7L22 8Z" fill="url(#a)"/>
+  <path d="m49 24-19 19H7l18-19h24Z" fill="#055a91"/>
+  <path d="M24 42h42L49 59H7l17-17Z" fill="url(#b)"/>
+</svg>
