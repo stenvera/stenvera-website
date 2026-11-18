@@ -46,24 +46,23 @@ For a basic preview without Wrangler, build and run `python -m http.server 8080 
 
 ## Cloudflare setup
 
-### Git integration
+GitHub Actions builds and tests pull requests. Pushes to main deploy the tested assets through Wrangler when DEPLOYMENTS_ENABLED is true. See [Deployment](docs/deployment.md) for credentials, cutover and rollback.
 
-Connect the repository to the Worker and configure **Workers & Pages → stenvera-website → Settings → Build**:
+### GitHub Actions configuration
 
 | Setting | Value |
 |---|---|
-| Repository | `Stenvera/stenvera-website` |
-| Worker name | `stenvera-website`, matching Wrangler |
-| Production branch | `main` |
-| Root directory | Repository root (`/`) |
-| Build command | `npm run build` |
-| Deploy command | `npm run deploy` |
-| Preview command, if preview builds enabled | `npx wrangler preview` |
-| Assets directory | `./dist`, set in `wrangler.jsonc` |
+| Workflow | .github/workflows/website.yml |
+| Production branch | main |
+| GitHub environment | production, restricted to main |
+| Repository variable CLOUDFLARE_ACCOUNT_ID | Account containing stenvera-website |
+| Repository variable DEPLOYMENTS_ENABLED | true to publish; false to pause |
+| Environment secret CLOUDFLARE_API_TOKEN | Account-owned token: Specified Workers / stenvera-website / Editor |
+| Build and checks | npm ci, npm run build, npm test |
+| Deploy command | npm run deploy |
+| Assets directory | ./dist |
 
-Build and deploy run separately. Production pushes publish through the Git integration; preview builds must be enabled separately for nonproduction branches. No Pages framework preset or Pages output-directory field is needed. See [Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).
-
-No application variables, secrets or bindings are required. Deployment credentials belong in Cloudflare's integration or local Wrangler authentication. Use Node 24 for the build environment to match local development.
+Application runtime secrets and bindings are not required. GitHub stores the deployment credential. Keep the old Workers Builds production trigger disabled to avoid competing production deployments.
 
 ### Wrangler configuration
 
@@ -79,12 +78,12 @@ No application variables, secrets or bindings are required. Deployment credentia
 | `observability.logs` | Enabled, sampling `1`, invocation logs and persistence enabled |
 | `observability.traces.enabled` | `false` |
 
-The apex custom domain is managed in the Cloudflare dashboard, so `routes` is omitted from `wrangler.jsonc`. Static asset requests do not execute application Worker JavaScript, so invocation logs are not a page-view counter.
+The apex custom domain is Terraform-managed in the private infrastructure repository, so `routes` is omitted from `wrangler.jsonc`. Static asset requests do not execute application Worker JavaScript, so invocation logs are not a page-view counter.
 
 ### Domains, redirects and email
 
 - Attach `stenvera.com` as the Worker's **Custom Domain**. See [Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).
-- Configure a Bulk Redirect list named `stenvera-www-redirects`: source `www.stenvera.com`, target `https://stenvera.com`, status **301**. Enable **Preserve query string**, **Subpath matching** and **Preserve path suffix**; disable **Include subdomains**. Enable a redirect rule referencing the list.
+- The Bulk Redirect list is named `stenvera_www_redirects`: source `www.stenvera.com/`, target `https://stenvera.com`, status **301**. Enable **Preserve query string**, **Subpath matching** and **Preserve path suffix**; disable **Include subdomains**. Enable a redirect rule referencing the list.
 - Configure `www` as a **proxied A record** pointing to `192.0.2.1`, TTL Auto. This is a placeholder for edge redirects, not a website origin.
 - Keep unrelated DNS and email records unchanged when configuring the website.
 - `mailto:mark@stenvera.com` relies on external mail forwarding; the repository does not provision or verify it.
