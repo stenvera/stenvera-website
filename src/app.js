@@ -1,4 +1,25 @@
 (() => {
+  const languageKey = 'stenvera-language';
+  const currentUrl = new URL(window.location.href);
+  const isLanguage = value => value === 'nl' || value === 'en';
+  const explicitLanguage = currentUrl.searchParams.get('lang');
+  let preferredLanguage;
+  try { preferredLanguage = window.localStorage.getItem(languageKey); } catch { /* storage unavailable */ }
+  if (isLanguage(explicitLanguage)) {
+    preferredLanguage = explicitLanguage;
+    try { window.localStorage.setItem(languageKey, explicitLanguage); } catch { /* storage unavailable */ }
+  }
+  if (!isLanguage(preferredLanguage)) {
+    preferredLanguage = (navigator.languages?.length ? navigator.languages : [navigator.language])
+      .map(language => (language || '').toLowerCase().split('-')[0])
+      .find(isLanguage) || 'en';
+  }
+  // The root is the automatic entry point; explicit English URLs stay English.
+  if (currentUrl.pathname === '/' && preferredLanguage === 'en') {
+    currentUrl.pathname = '/en/';
+    window.location.replace(currentUrl.href);
+    return;
+  }
   const root = document.documentElement;
   const buttons = [...document.querySelectorAll('[data-set-theme]')];
   const themeQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -24,11 +45,21 @@
   });
   syncButtons();
   document.querySelector('#year')?.replaceChildren(document.createTextNode(String(new Date().getFullYear())));
-  document.querySelectorAll('.lang-link').forEach(link => link.addEventListener('click', event => {
-    const target=new URL(link.href);
-    if (target.pathname===window.location.pathname) return;
-    if (window.location.hash) { event.preventDefault(); window.location.href=target.pathname+window.location.hash; }
-  }));
+  document.querySelectorAll('.lang-link').forEach(link => {
+    const target = new URL(link.href);
+    const language = target.pathname === '/en/' ? 'en' : 'nl';
+    target.search = currentUrl.search;
+    target.searchParams.set('lang', language);
+    target.hash = currentUrl.hash;
+    link.href = target.href;
+    // Keep ordinary links (including opening in a new tab) working without storage.
+    link.addEventListener('click', () => {
+      try { window.localStorage.setItem(languageKey, language); } catch { /* storage unavailable */ }
+      const destination = new URL(link.href);
+      destination.hash = window.location.hash;
+      link.href = destination.href;
+    });
+  });
   const links=[...document.querySelectorAll('.nav-item')];
   const sections=[...document.querySelectorAll('#top,#about,#expertise,#projects,#homelab,#contact')];
   if ('IntersectionObserver' in window) {

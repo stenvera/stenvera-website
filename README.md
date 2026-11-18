@@ -1,95 +1,118 @@
 # Stenvera.com — Mark Veenstra
 
-A real, production-ready, bilingual (NL + EN) static personal website. Inspired by the approved Stenvera light/dark design mockups. It uses Mark's supplied portrait photo, a source-editable Stenvera-style vector mark, and links to LinkedIn and both GitHub profiles.
+Bilingual personal website deployed with **Cloudflare Workers Static Assets** from [Stenvera/stenvera-website](https://github.com/Stenvera/stenvera-website). Dutch: <https://stenvera.com/>. English: <https://stenvera.com/en/>.
+
+## Architecture
+
+`scripts/build.mjs` generates HTML and copies `src/` assets into `dist/`. There is no framework, backend Worker script, database, contact form, external font or runtime npm dependency. Wrangler is a development dependency. The source includes no analytics or trackers; dashboard-managed analytics settings are separate.
 
 ## Included
 
-- **NL** `https://stenvera.com/` and **EN** `https://stenvera.com/en/`, with accessible language switch.
-- Light / dark themes: **first visit follows `prefers-color-scheme`** from the visitor's OS/browser, and manual choice is remembered in `localStorage`. When no override is set, it also reacts to changes of the OS preference.
-- Responsive desktop, tablet and mobile layouts.
-- Intro, expertise, homelab and project playground, experience, technology stack, and contact sections.
-- Contact email: `mark@stenvera.com` (mailto link, not a hosted contact form).
-- Links to both https://github.com/Stenvera and https://github.com/mark-veenstra plus LinkedIn.
-- SEO: canonical URLs, distinct language metadata, `hreflang`, sitemap, robots, Open Graph image, Person JSON-LD, and custom 404.
-- No analytics, trackers, frontend frameworks, external fonts or network-dependent runtime resources.
+- Dutch and English pages with automatic language selection on root visits based on browser preferences, falling back to English.
+- Accessible NL/EN switch with remembered manual selection.
+- Device-aware light/dark themes with remembered manual selection.
+- Responsive layouts, portrait, projects, experience and contact sections.
+- SEO: canonical URLs, hreflang, sitemap, robots, Open Graph image and Person JSON-LD.
+- Custom 404 page.
 
-**Note about the logo:** the supplied visual design mockups contain a Stenvera S-style symbol, but the original vector file was not available in this task. The project therefore includes a new editable SVG reconstruction (`src/brand.svg`) visually in the same style. Replace it with the exact approved vector whenever available. The favicon (`src/favicon.svg`) is coordinated with it.
+Visitors entering at `/` are directed to Dutch or English using their browser's ordered language preferences (normally inherited from OS settings). The first supported language wins; English is the fallback. The NL/EN switch remembers an explicit choice in local storage and includes a `lang` query parameter so it also works when storage is unavailable. Direct `/en/` links stay English. Redirects preserve query parameters and section anchors. Detection runs in the browser; without JavaScript, `/` serves Dutch and `/en/` serves English.
 
-## Quick start
+Contact is `mark@stenvera.com`, with LinkedIn and both GitHub profiles linked. Branding assets are stored in `src/`. No license has been selected; public availability does not grant reuse rights to personal photos or branding.
 
-Requires Node.js 20+. There are **zero npm dependencies**.
+## Local development
 
-```bash
+Use Node.js 24 and npm for local work. The package declares Node >=20, but the tests use `import.meta.dirname`, which requires at least Node 20.11. Wrangler is pinned to `4.164.0`.
+
+```sh
+npm ci
 npm run build
 npm test
-python3 -m http.server 8080 --directory dist
+npm run dev
 ```
 
-Visit http://localhost:8080/ (Dutch) or http://localhost:8080/en/ (English).
+`package-lock.json` records the dependency tree for reproducible `npm ci` installs. When intentionally changing dependencies, use `npm install` and commit the updated lockfile. The build and tests themselves use only Node built-ins, so they can run without installing Wrangler.
 
-`npm run build` generates a self-contained `dist/` folder. This directory is intentionally excluded from Git, and Cloudflare Pages builds it automatically.
+Open the URL printed by Wrangler and check `/` and `/en/`. The dev command builds only once: run `npm run build` again after editing source. The build replaces `dist/`; never edit generated output directly.
 
-## Upload to GitHub
-
-Create a new repository e.g. `stenvera-website` on either your personal account `mark-veenstra` or the `Stenvera` organization. Make sure your GitHub user has permissions to the target organization if choosing Stenvera.
-
-Unzip the package and run **from the directory containing `package.json`**:
-
-```bash
-git init
-git add .
-git commit -m "Initial Stenvera personal website"
-git branch -M main
-git remote add origin https://github.com/Stenvera/stenvera-website.git
-git push -u origin main
-```
-
-If using your personal GitHub account instead, use `https://github.com/mark-veenstra/stenvera-website.git` as the remote. **Create that repository first**; the examples do not create it for you.
-
-Or upload the unzipped source files with GitHub's web interface (not the ZIP file itself).
-
-## Connect Cloudflare Pages to GitHub
-
-1. Open the Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**. UI names can change.
-2. Authorize the Cloudflare GitHub integration for your account or Stenvera organization, and select the `stenvera-website` repository.
-3. Configure the build:
-
-   | Setting | Value |
-   |---|---|
-   | Framework preset | `None` |
-   | Production branch | `main` |
-   | Root directory | `/` (repo root / default) |
-   | Build command | `npm run build` |
-   | Build output directory | `dist` |
-   | Node.js | 20 or later |
-
-4. Deploy. Cloudflare creates a `*.pages.dev` preview URL. Each push to `main` then automatically deploys a new production version. Nonproduction branches can produce preview deployments.
-5. In your Pages project choose **Custom domains → Set up a domain** and add `stenvera.com` (your domain's DNS is already hosted with Cloudflare). Let Cloudflare create/manage the corresponding apex DNS record. Do not manually add an apex Pages CNAME before associating the custom domain.
-6. To send `www.stenvera.com` to `https://stenvera.com`, follow Cloudflare's documented **Bulk Redirect** pattern and add the required proxied `www` DNS record. Do not blindly attach `www` to a Tunnel because of a wildcard rule. The official guide gives an example using a proxied DNS A record pointed to `192.0.2.1`, which is a **placeholder for the redirect mechanism, not a website origin IP**.
-7. Verify both `https://stenvera.com/` and `https://stenvera.com/en/` and all external links, the theme toggle, and the email link.
-
-**Important for the existing Stenvera setup:** You can keep your wildcard/other DNS records for future project subdomains (`*.stenvera.com`), Cloudflare Tunnel, `privatelab.stenvera.com`, and your Cloudflare Email Routing MX/TXT records. Only the apex `stenvera.com` record should be managed for this Pages website. If there is already an apex record routing elsewhere, resolve that specific conflict, without touching the existing mail routing or project records.
-
-Cloudflare official documentation:
-- GitHub integration: https://developers.cloudflare.com/pages/configuration/git-integration/
-- Custom domains: https://developers.cloudflare.com/pages/configuration/custom-domains/
-- WWW → apex redirect: https://developers.cloudflare.com/pages/how-to/www-redirect/
-- Build settings: https://developers.cloudflare.com/pages/configuration/build-configuration/
-
-## Editing the website
-
-| What you want to update | File |
+| Command | Behavior |
 |---|---|
-| Dutch / English text, URLs, expertise & experience | `scripts/build.mjs` (the `data.nl` / `data.en` objects) |
-| Styling, colors, spacing, responsiveness | `src/styles.css` (`:root` and `html[data-theme=dark]`) |
-| Theme and language interaction | `src/app.js` |
-| Photo | `src/mark-veenstra.webp` |
-| Logo and favicon | `src/brand.svg`, `src/favicon.svg` |
-| Link preview image | `src/og-image.png` |
-| Headers, robot rules | `src/_headers`, `src/robots.txt` |
+| `npm run build` | Generate pages, sitemap, 404 and copied assets |
+| `npm test` | Check existing build output; build first |
+| `npm run dev` | Build once and start Wrangler locally |
+| `npm run deploy` | Publish existing `dist/`; does not build or test |
+| `npm run deploy:local` | Build and publish; does not test |
 
-**Before publishing:** Check the wording about ilionx, including the planned 1 January 2027 starting date (update it once you have started), and confirm `mark@stenvera.com` forwards successfully to your mailbox. A mailto link requires working mail routing, but this site does not host your email.
+For a basic preview without Wrangler, build and run `python -m http.server 8080 --directory dist` (`py` on Windows or `python3` where appropriate). This does not emulate Cloudflare headers, redirects or 404 handling.
 
-## Technical notes
+## Cloudflare setup
 
-The two pages are pre-rendered at build time. There is no SPA fallback, no server code, and no origin connected to the homelab. Visitor preferences live only in the visitor's own browser storage. All navigation, language links and SEO URLs work with Cloudflare Pages' standard static-file hosting.
+### Git integration
+
+Connect the repository to the Worker and configure **Workers & Pages → stenvera-website → Settings → Build**:
+
+| Setting | Value |
+|---|---|
+| Repository | `Stenvera/stenvera-website` |
+| Worker name | `stenvera-website`, matching Wrangler |
+| Production branch | `main` |
+| Root directory | Repository root (`/`) |
+| Build command | `npm run build` |
+| Deploy command | `npm run deploy` |
+| Preview command, if preview builds enabled | `npx wrangler preview` |
+| Assets directory | `./dist`, set in `wrangler.jsonc` |
+
+Build and deploy run separately. Production pushes publish through the Git integration; preview builds must be enabled separately for nonproduction branches. No Pages framework preset or Pages output-directory field is needed. See [Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).
+
+No application variables, secrets or bindings are required. Deployment credentials belong in Cloudflare's integration or local Wrangler authentication. Use Node 24 for the build environment to match local development.
+
+### Wrangler configuration
+
+| Setting | Current value |
+|---|---|
+| `compatibility_date` | `2026-11-17` |
+| `workers_dev` | `true` |
+| `preview_urls` | `true` |
+| `assets.directory` | `./dist` |
+| `assets.html_handling` | `auto-trailing-slash` |
+| `assets.not_found_handling` | `404-page` |
+| `assets.run_worker_first` | `false` |
+| `observability.logs` | Enabled, sampling `1`, invocation logs and persistence enabled |
+| `observability.traces.enabled` | `false` |
+
+The apex custom domain is managed in the Cloudflare dashboard, so `routes` is omitted from `wrangler.jsonc`. Static asset requests do not execute application Worker JavaScript, so invocation logs are not a page-view counter.
+
+### Domains, redirects and email
+
+- Attach `stenvera.com` as the Worker's **Custom Domain**. See [Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).
+- Configure a Bulk Redirect list named `stenvera-www-redirects`: source `www.stenvera.com`, target `https://stenvera.com`, status **301**. Enable **Preserve query string**, **Subpath matching** and **Preserve path suffix**; disable **Include subdomains**. Enable a redirect rule referencing the list.
+- Configure `www` as a **proxied A record** pointing to `192.0.2.1`, TTL Auto. This is a placeholder for edge redirects, not a website origin.
+- Keep unrelated DNS and email records unchanged when configuring the website.
+- `mailto:mark@stenvera.com` relies on external mail forwarding; the repository does not provision or verify it.
+
+### Publishing and checks
+
+Before publishing, run `npm run build` and `npm test`. To deploy manually, authenticate with `npx wrangler login`, then run `npm run deploy` against the tested output. A push/merge to the configured production branch can publish automatically.
+
+After deployment verify:
+
+- `/` and `/en/`, assets, external/contact links, language switching and themes.
+- An unknown path returns HTTP 404 with the custom page.
+- `https://www.stenvera.com/en/?source=check` redirects to `https://stenvera.com/en/?source=check`, retaining path and query.
+- Response security headers match `src/_headers`.
+
+## Editing guide
+
+| Change | File |
+|---|---|
+| NL/EN content, links, HTML templates, metadata, sitemap, 404 | `scripts/build.mjs` (`data.nl` / `data.en`) |
+| Styling and responsive themes | `src/styles.css` |
+| Theme, language and navigation interactions | `src/app.js` |
+| Portrait | `src/mark-veenstra.webp` |
+| Logo, favicon, touch icon | `src/brand.svg`, `src/favicon.svg`, `src/apple-touch-icon.png` |
+| Social preview image | `src/og-image.png` |
+| Headers and crawler rules | `src/_headers`, `src/robots.txt` |
+| Deployment | `wrangler.jsonc`, `package.json` |
+| Build checks | `tests/check.mjs` |
+| Coding-agent guidance | `AGENTS.md` |
+
+Keep both languages aligned when updating content. For visual or interaction changes, inspect both languages and themes at mobile and desktop sizes. Node tests do not verify layout, browser interactions or live deployment.
