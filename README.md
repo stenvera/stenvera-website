@@ -46,6 +46,8 @@ For a basic preview without Wrangler, build and run `python -m http.server 8080 
 
 ## Cloudflare setup
 
+The GitHub Actions workflow and deployment configuration are described in [Deployment](docs/deployment.md). During migration, Actions publishing remains disabled until the existing Workers Builds trigger is paused and the production credentials are configured.
+
 ### Git integration
 
 Connect the repository to the Worker and configure **Workers & Pages → stenvera-website → Settings → Build**:
@@ -84,7 +86,7 @@ The apex custom domain is managed in the Cloudflare dashboard, so `routes` is om
 ### Domains, redirects and email
 
 - Attach `stenvera.com` as the Worker's **Custom Domain**. See [Workers Custom Domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).
-- Configure a Bulk Redirect list named `stenvera-www-redirects`: source `www.stenvera.com`, target `https://stenvera.com`, status **301**. Enable **Preserve query string**, **Subpath matching** and **Preserve path suffix**; disable **Include subdomains**. Enable a redirect rule referencing the list.
+- The Bulk Redirect list is named `stenvera_www_redirects`: source `www.stenvera.com/`, target `https://stenvera.com`, status **301**. Enable **Preserve query string**, **Subpath matching** and **Preserve path suffix**; disable **Include subdomains**. Enable a redirect rule referencing the list.
 - Configure `www` as a **proxied A record** pointing to `192.0.2.1`, TTL Auto. This is a placeholder for edge redirects, not a website origin.
 - Keep unrelated DNS and email records unchanged when configuring the website.
 - `mailto:mark@stenvera.com` relies on external mail forwarding; the repository does not provision or verify it.
