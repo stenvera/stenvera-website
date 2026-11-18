@@ -78,7 +78,7 @@ Application runtime secrets and bindings are not required. GitHub stores the dep
 | `observability.logs` | Enabled, sampling `1`, invocation logs and persistence enabled |
 | `observability.traces.enabled` | `false` |
 
-The apex custom domain is managed in the Cloudflare dashboard, so `routes` is omitted from `wrangler.jsonc`. Static asset requests do not execute application Worker JavaScript, so invocation logs are not a page-view counter.
+The apex custom domain is Terraform-managed in the private infrastructure repository, so `routes` is omitted from `wrangler.jsonc`. Static asset requests do not execute application Worker JavaScript, so invocation logs are not a page-view counter.
 
 ### Domains, redirects and email
 
