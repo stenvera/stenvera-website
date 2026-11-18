@@ -7,11 +7,13 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "npm run build && wrangler dev",
-    "test": "node tests/check.mjs",
+    "test": "node tests/check.mjs && node --test tests/preview-output.test.mjs",
     "deploy": "wrangler deploy",
-    "deploy:local": "npm run build && wrangler deploy"
+    "deploy:local": "npm run build && wrangler deploy",
+    "test:browser": "node scripts/browser-check.mjs"
   },
   "devDependencies": {
+    "playwright": "1.65.1",
     "wrangler": "4.164.0"
   },
   "engines": {

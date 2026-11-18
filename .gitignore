@@ -5,3 +5,6 @@ dist/
 !.dev.vars.example
 .DS_Store
 *.log
+artifacts/
+preview.json
+pr.json

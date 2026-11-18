@@ -43,6 +43,7 @@ Adapt meaningful tests when behavior changes; documentation-only edits need no n
 ## Deployment boundaries
 
 - Worker: stenvera-website; production branch: main; assets: ./dist.
+- PR previews use wrangler preview with names pr-<number> and the preview GitHub environment. Never use wrangler deploy for a PR. Keep fork and Dependabot PRs out of credentialed jobs. Cleanup must use trusted default-branch code and delete only the named Preview, not the Worker. See docs/previews.md.
 - npm run deploy publishes existing output without build/tests; npm run deploy:local builds and publishes without tests. Neither is a validation command.
 - Local edits and checks do not authorize publishing. Push, merge or deploy only when requested; production pushes can deploy automatically.
 - Keep the apex custom domain Terraform-managed in Stenvera/stenvera-infrastructure; routes is intentionally absent from Wrangler. The www Bulk Redirect, DNS, Email Routing and Tunnel configuration live outside this repository.

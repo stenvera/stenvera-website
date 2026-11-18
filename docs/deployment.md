@@ -24,7 +24,7 @@ Avoid enabling two automatic production deployers at once. If cutover fails, set
 
 Run npm run build and npm test before publishing. node scripts/smoke.mjs checks the public site responses; it does not deploy. The smoke check verifies HTTP responses, not client-side language detection or browser layout.
 
-No credentialed jobs run for pull requests. Workflow actions are pinned to immutable commits; update pins intentionally. Pull-request preview deployments are not enabled by this workflow.
+Production credentials are never supplied to pull-request jobs. Trusted same-repository PRs can use the separate preview environment; see [PR previews](previews.md). Workflow actions are pinned to immutable commits; update pins intentionally.
 
 The empty `previews` block in `wrangler.jsonc` supports `wrangler preview` while the existing Cloudflare preview integration remains active. `preview_urls` controls version URLs and does not replace that block.
 
