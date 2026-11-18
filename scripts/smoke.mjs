@@ -28,7 +28,7 @@ async function check() {
 for (let attempt = 1; ; attempt++) {
   try {
     await check();
-    console.log('PASS: language pages, security header, assets, 404 and www redirect');
+    console.log(`PASS: ${base.origin}: language pages, security header, assets and 404${base.hostname === 'stenvera.com' ? ', plus www redirect' : ''}`);
     break;
   } catch (error) {
     if (attempt === 5) throw error;

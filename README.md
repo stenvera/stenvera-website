@@ -8,6 +8,7 @@ Bilingual personal website deployed with **Cloudflare Workers Static Assets** fr
 
 ## Included
 
+- Public pull-request previews with HTTP and Chromium checks, plus desktop/mobile screenshots (requires preview environment setup).
 - Dutch and English pages with automatic language selection on root visits based on browser preferences, falling back to English.
 - Accessible NL/EN switch with remembered manual selection.
 - Device-aware light/dark themes with remembered manual selection.
@@ -47,6 +48,8 @@ For a basic preview without Wrangler, build and run `python -m http.server 8080 
 ## Cloudflare setup
 
 GitHub Actions builds and tests pull requests. Pushes to main deploy the tested assets through Wrangler when DEPLOYMENTS_ENABLED is true. See [Deployment](docs/deployment.md) for credentials, cutover and rollback.
+
+With PREVIEWS_ENABLED=true and a preview environment token configured, same-repository PRs also receive a public Cloudflare Preview URL. Each push updates that PR's preview; closure or merge removes it. Fork PRs build and test without preview credentials. See [PR previews](docs/previews.md) for setup and review instructions.
 
 ### GitHub Actions configuration
 
