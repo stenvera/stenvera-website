@@ -82,7 +82,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           npx --no-install wrangler preview --worker-name stenvera-website --name "pr-$PR_NUMBER" --ignore-base-config --json > preview.json
-          url=$(jq -er '.preview.urls[0]' preview.json)
+          url=$(node scripts/preview-output.mjs preview.json)
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
       - name: Link preview from PR
