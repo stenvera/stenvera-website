@@ -46,26 +46,23 @@ For a basic preview without Wrangler, build and run `python -m http.server 8080 
 
 ## Cloudflare setup
 
-The GitHub Actions workflow and deployment configuration are described in [Deployment](docs/deployment.md). During migration, Actions publishing remains disabled until the existing Workers Builds trigger is paused and the production credentials are configured.
+GitHub Actions builds and tests pull requests. Pushes to main deploy the tested assets through Wrangler when DEPLOYMENTS_ENABLED is true. See [Deployment](docs/deployment.md) for credentials, cutover and rollback.
 
-### Git integration
-
-Connect the repository to the Worker and configure **Workers & Pages → stenvera-website → Settings → Build**:
+### GitHub Actions configuration
 
 | Setting | Value |
 |---|---|
-| Repository | `Stenvera/stenvera-website` |
-| Worker name | `stenvera-website`, matching Wrangler |
-| Production branch | `main` |
-| Root directory | Repository root (`/`) |
-| Build command | `npm run build` |
-| Deploy command | `npm run deploy` |
-| Preview command, if preview builds enabled | `npx wrangler preview` |
-| Assets directory | `./dist`, set in `wrangler.jsonc` |
+| Workflow | .github/workflows/website.yml |
+| Production branch | main |
+| GitHub environment | production, restricted to main |
+| Repository variable CLOUDFLARE_ACCOUNT_ID | Account containing stenvera-website |
+| Repository variable DEPLOYMENTS_ENABLED | true to publish; false to pause |
+| Environment secret CLOUDFLARE_API_TOKEN | Account-owned token: Specified Workers / stenvera-website / Editor |
+| Build and checks | npm ci, npm run build, npm test |
+| Deploy command | npm run deploy |
+| Assets directory | ./dist |
 
-Build and deploy run separately. Production pushes publish through the Git integration; preview builds must be enabled separately for nonproduction branches. No Pages framework preset or Pages output-directory field is needed. See [Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).
-
-No application variables, secrets or bindings are required. Deployment credentials belong in Cloudflare's integration or local Wrangler authentication. Use Node 24 for the build environment to match local development.
+Application runtime secrets and bindings are not required. GitHub stores the deployment credential. Keep the old Workers Builds production trigger disabled to avoid competing production deployments.
 
 ### Wrangler configuration
 

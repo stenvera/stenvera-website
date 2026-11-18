@@ -45,6 +45,6 @@ Adapt meaningful tests when behavior changes; documentation-only edits need no n
 - Worker: stenvera-website; production branch: main; assets: ./dist.
 - npm run deploy publishes existing output without build/tests; npm run deploy:local builds and publishes without tests. Neither is a validation command.
 - Local edits and checks do not authorize publishing. Push, merge or deploy only when requested; production pushes can deploy automatically.
-- Keep the apex custom domain dashboard-managed; routes is intentionally absent from Wrangler. The www Bulk Redirect, DNS, Email Routing and Tunnel configuration live outside this repository.
+- Keep the apex custom domain Terraform-managed in Stenvera/stenvera-infrastructure; routes is intentionally absent from Wrangler. The www Bulk Redirect, DNS, Email Routing and Tunnel configuration live outside this repository.
 - Do not modify unrelated DNS, email or homelab resources. Never commit API tokens, .dev.vars, .env files or credential-bearing logs.
 - Update README.md when commands, dependencies, architecture or deployment requirements change. Distinguish recorded setup from settings verified in the live account.

@@ -7,7 +7,7 @@ The Website workflow builds and tests pull requests and main commits without Clo
 - Repository variable CLOUDFLARE_ACCOUNT_ID: the account containing stenvera-website.
 - Repository variable DEPLOYMENTS_ENABLED: leave unset until cutover; set to true to enable publishing.
 - GitHub environment production: restrict deployments to main. Store CLOUDFLARE_API_TOKEN as an environment secret.
-- Use a dedicated Cloudflare deployment token with Workers Scripts Edit scoped to the website account. Keep DNS and redirect administration in the infrastructure repository. If Wrangler reports an additional required permission, review that specific permission before expanding scope.
+- Use a dedicated account-owned Cloudflare deployment token with Workers / Editor scoped to the existing stenvera-website Worker (Specified Workers). Do not select the legacy Workers Scripts permission or Workers Admin. Keep DNS and redirect administration in the infrastructure repository. If Wrangler reports an additional required permission, review that specific permission before expanding scope.
 - The private Stenvera/stenvera-infrastructure repository manages the domain, www DNS and redirects after import. Do not add competing routes to Wrangler.
 
 ## Cutover
@@ -27,3 +27,5 @@ Run npm run build and npm test before publishing. node scripts/smoke.mjs checks 
 No credentialed jobs run for pull requests. Workflow actions are pinned to immutable commits; update pins intentionally. Pull-request preview deployments are not enabled by this workflow.
 
 The empty `previews` block in `wrangler.jsonc` supports `wrangler preview` while the existing Cloudflare preview integration remains active. `preview_urls` controls version URLs and does not replace that block.
+
+See [Cloudflare Workers authorization](https://developers.cloudflare.com/workers/authorization/workers/) for current roles. Deployments here must not change Custom Domains or routes; those operations require broader Workers product access and zone Workers Routes Write in the infrastructure token.
